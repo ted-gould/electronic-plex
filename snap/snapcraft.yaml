@@ -27,6 +27,14 @@ parts:
     plugin: nil
     source: .
     override-build: |
+        set +u # core20 base does not allow unbound variables !
+        # workaround for build.snapcraft.io builds
+        # https://bugs.launchpad.net/bugs/1886861
+        if [ -n "$http_proxy" ]; then
+          export ELECTRON_GET_USE_PROXY=1
+          export GLOBAL_AGENT_HTTP_PROXY="${http_proxy}"
+          export GLOBAL_AGENT_HTTPS_PROXY="${http_proxy}"
+        fi
         npm install electron electron-packager
         npx electron-packager . --overwrite --platform=linux --output=release-build --prune=true
         cp -rv ./electronic-plex-linux-* $SNAPCRAFT_PART_INSTALL/electronic-plex
